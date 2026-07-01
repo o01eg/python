@@ -9,6 +9,7 @@
 #include <boost/bind/bind.hpp>
 #include <iostream>
 #include <thread>
+#include <vector>
 
 namespace bpl = boost::python;
 
@@ -41,7 +42,9 @@ bool set_state(int value)
 BOOST_PYTHON_MODULE_WITH_STATE(multi_thread_import_, TestState) {
   state->x = -1;
   bpl::def("get_state", get_state);
+  std::cout << "Thread " << std::this_thread::get_id() << ": Registered get_state" << std::endl;
   bpl::def("set_state", set_state);
+  std::cout << "Thread " << std::this_thread::get_id() << ": Registered set_state" << std::endl;
 }
 
 void import_test(int thread_id)
@@ -57,7 +60,7 @@ void import_test(int thread_id)
 
   import_ = bpl::import("multi_thread_import_");
   int value = bpl::extract<int>(import_.attr("get_state")()) BOOST_EXTRACT_WORKAROUND;
-  std::cout << "Thread " << thread_id << ": " << value << std::endl;
+  std::cout << "Thread " << std::this_thread::get_id() << " #" << thread_id << ": " << value << std::endl;
   BOOST_TEST(value == thread_id);
 }
 
